@@ -16,6 +16,17 @@
     #3a3e46 100%
   );
   --blue-glow: rgba(70, 140, 255, 0.55);
+  --liquid-chrome: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #e6ebf3 22%,
+    #a7b1c2 44%,
+    #232b39 50%,
+    #4f6fae 55%,
+    #9fc0ff 68%,
+    #eef3fb 85%,
+    #ffffff 100%
+  );
 }
 
 body {
@@ -32,39 +43,64 @@ body {
   pointer-events: none;
 }
 
+/* chrome buis-letters (SVG) */
 .title h1 {
   margin: 0;
-  font-size: clamp(28px, 5vw, 56px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  background:
-    linear-gradient(
-      110deg,
-      transparent 40%,
-      rgba(255, 255, 255, 0.95) 50%,
-      transparent 60%
-    ),
-    var(--chrome);
-  background-size:
-    250% 100%,
-    100% 100%;
-  background-repeat: no-repeat;
-  animation: shine 4s ease-in-out 1.2s infinite;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(80, 86, 96, 0.35);
-  filter: drop-shadow(0 2px 6px rgba(40, 60, 100, 0.25));
+  line-height: 0;
+}
+
+.chrome-title {
+  width: clamp(260px, 36vw, 500px);
+  height: auto;
+  overflow: visible;
+}
+
+.chrome-title text {
+  font-family: "Varela Round", "Nunito", system-ui, sans-serif;
+  font-size: 92px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* dikke chrome omtrek */
+.chrome-title .t-rim {
+  fill: url(#chromeStroke);
+  stroke: url(#chromeStroke);
+  stroke-width: 17;
+}
+
+/* glans die over de buis schuift */
+.chrome-title .t-shine {
+  fill: none;
+  stroke: url(#shineStroke);
+  stroke-width: 17;
+  mix-blend-mode: screen;
+}
+
+/* binnenvlak in de achtergrondkleur: laat alleen de buisrand zien */
+.chrome-title .t-face {
+  fill: url(#innerFace);
+  stroke: url(#innerFace);
+  stroke-width: 6;
 }
 
 .title p {
-  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 0;
   font-size: 11px;
   font-weight: 300;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #5d636c;
+}
+
+.title p::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: linear-gradient(90deg, #4f6fae, transparent);
 }
 
 .hint {
@@ -229,13 +265,14 @@ body.loaded .loader {
 }
 
 .loader-percent {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 800;
-  background: var(--chrome);
+  background: var(--liquid-chrome);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(80, 86, 96, 0.35);
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.55);
+  filter: drop-shadow(0 6px 14px rgba(60, 110, 230, 0.3));
 }
 
 .loader-label {
@@ -264,15 +301,23 @@ body.loaded .loader {
   color: #6b717a;
 }
 
-.info-name {
-  font-size: 26px;
-  font-weight: 800;
-  text-transform: uppercase;
-  background: var(--chrome);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(80, 86, 96, 0.35);
+/* materiaalnaam in dezelfde chrome buisletters als de titel */
+.chrome-title.info-name {
+  width: 240px;
+  margin: 2px 0 0 -6px;
+}
+
+.chrome-title.info-name text {
+  font-size: 52px;
+}
+
+.chrome-title.info-name .t-rim,
+.chrome-title.info-name .t-shine {
+  stroke-width: 11;
+}
+
+.chrome-title.info-name .t-face {
+  stroke-width: 4;
 }
 
 .info-specs {
@@ -308,6 +353,99 @@ body.loaded .loader {
   text-transform: uppercase;
   color: #6b717a;
   pointer-events: none;
+}
+
+/* ---------- portfolio-ballon ---------- */
+.portfolio-bubble {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  will-change: transform;
+}
+
+.portfolio-bubble[hidden] {
+  display: none;
+}
+
+.bubble-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 40px 16px 20px;
+  border-radius: 22px 22px 22px 6px;
+  background: var(--chrome);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(90, 96, 106, 0.45),
+    0 14px 34px rgba(30, 45, 80, 0.3),
+    0 0 22px var(--blue-glow);
+  transform-origin: bottom left;
+  animation: bubble-in 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+/* staartje dat naar het hoofd wijst */
+.bubble-card::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  bottom: -12px;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, #c3c7ce, #f2f4f7);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  filter: drop-shadow(0 2px 2px rgba(30, 45, 80, 0.2));
+}
+
+.bubble-label {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1d2330;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.bubble-link {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #1f3f86;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+.bubble-link:hover {
+  color: #2a62d8;
+  text-decoration: underline;
+}
+
+.bubble-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: var(--chrome-dark);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4) translateY(10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
 }
 
 @keyframes swap {

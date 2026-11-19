@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;600;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;600;800&family=Varela+Round&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -19,22 +19,104 @@
     </div>
 
     <header class="title">
-      <h1>Chrome Head</h1>
+      <h1 aria-label="Chrome Head">
+        <!-- letters met een chrome buis als rand, binnenin dezelfde grijstint als de achtergrond -->
+        <svg class="chrome-title" viewBox="0 0 720 140" aria-hidden="true">
+          <defs>
+            <!-- chrome: lichte lucht, donkere horizon, blauwe weerspiegeling -->
+            <linearGradient id="chromeStroke" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffffff" />
+              <stop offset="0.28" stop-color="#d4d9e1" />
+              <stop offset="0.46" stop-color="#5d6575" />
+              <stop offset="0.52" stop-color="#1b212d" />
+              <stop offset="0.6" stop-color="#7f8fae" />
+              <stop offset="0.78" stop-color="#e9eef6" />
+              <stop offset="1" stop-color="#ffffff" />
+            </linearGradient>
+
+            <linearGradient id="innerFace" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#c9ced6" />
+              <stop offset="1" stop-color="#b9bfc8" />
+            </linearGradient>
+
+            <!-- bewegende glans over de chrome rand -->
+            <linearGradient id="shineStroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#fff" stop-opacity="0" />
+              <stop offset="0.45" stop-color="#fff" stop-opacity="0" />
+              <stop offset="0.5" stop-color="#fff" stop-opacity="0.95" />
+              <stop offset="0.55" stop-color="#fff" stop-opacity="0" />
+              <stop offset="1" stop-color="#fff" stop-opacity="0" />
+              <animateTransform
+                attributeName="gradientTransform"
+                type="translate"
+                values="-1 0; 1 0; 1 0"
+                keyTimes="0; 0.6; 1"
+                dur="5s"
+                repeatCount="indefinite"
+              />
+            </linearGradient>
+
+            <!-- buis-effect: bolle highlights op de rand + zachte schaduw -->
+            <filter id="tube" x="-5%" y="-20%" width="110%" height="150%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="1.2" result="blur" />
+              <feSpecularLighting
+                in="blur"
+                surfaceScale="5"
+                specularConstant="1.2"
+                specularExponent="30"
+                lighting-color="#ffffff"
+                result="spec"
+              >
+                <fePointLight x="200" y="-120" z="220" />
+              </feSpecularLighting>
+              <feComposite in="spec" in2="SourceAlpha" operator="in" result="specIn" />
+              <feComposite in="SourceGraphic" in2="specIn" operator="arithmetic" k1="0" k2="1" k3="0.9" k4="0" result="lit" />
+              <feDropShadow in="lit" dx="0" dy="5" stdDeviation="5" flood-color="#1c2a4a" flood-opacity="0.28" />
+            </filter>
+          </defs>
+
+          <!-- lagen: dikke chrome omtrek, glans erop, dan een iets dunner vlak erover
+               zodat alleen een chrome buis langs de rand overblijft -->
+          <g filter="url(#tube)">
+            <text x="22" y="98" textLength="676" lengthAdjust="spacing" class="t-rim">chrome head</text>
+            <text x="22" y="98" textLength="676" lengthAdjust="spacing" class="t-shine">chrome head</text>
+            <text x="22" y="98" textLength="676" lengthAdjust="spacing" class="t-face">chrome head</text>
+          </g>
+        </svg>
+      </h1>
       <p>3D scan &middot; material study</p>
     </header>
 
     <p class="hint">
-      sleep om te draaien &middot; scroll om te zoomen<br />
+      klik op mijn hoofd &middot; sleep om te draaien &middot; scroll om te zoomen<br />
       toetsen <kbd>1</kbd>&ndash;<kbd>5</kbd> materiaal &middot; <kbd>M</kbd> morph
     </p>
 
     <aside class="material-info">
       <span class="info-index">01 / 05</span>
-      <span class="info-name">Origineel</span>
+      <!-- zelfde chrome buisletters als de titel (gebruikt de gradients en filter daarvan) -->
+      <svg class="info-name chrome-title" viewBox="0 0 330 72" aria-label="origineel">
+        <g filter="url(#tube)">
+          <text x="10" y="54" class="t-rim info-name-text">origineel</text>
+          <text x="10" y="54" class="t-shine info-name-text">origineel</text>
+          <text x="10" y="54" class="t-face info-name-text">origineel</text>
+        </g>
+      </svg>
       <span class="info-specs">3D scan &middot; originele textures</span>
     </aside>
 
     <p class="footer">Three.js &middot; 2026</p>
+
+    <!-- tekstballon die verschijnt als je op het hoofd klikt -->
+    <div class="portfolio-bubble" hidden>
+      <div class="bubble-card">
+        <button class="bubble-close" aria-label="Sluiten">&times;</button>
+        <span class="bubble-label">bekijk mijn portfolio!</span>
+        <a class="bubble-link" href="https://www.yentevanhoudt.be" target="_blank" rel="noopener">
+          www.yentevanhoudt.be <span aria-hidden="true">&nearr;</span>
+        </a>
+      </div>
+    </div>
 
     <script type="module" src="/src/main.js"></script>
   </body>

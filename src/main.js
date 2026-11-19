@@ -102,6 +102,11 @@ manager.onLoad = () => {
   loaderEl.textContent = "100%";
   document.body.classList.add("loaded");
   loadedAt = performance.now();
+
+  // ballon roept vanzelf na 2 seconden, tenzij de bezoeker al zelf geklikt heeft
+  setTimeout(() => {
+    if (!bubbleTouched) showBubble();
+  }, 2000);
 };
 
 const hdrLoader = new HDRLoader(manager);
@@ -322,6 +327,7 @@ const crownPivot = new THREE.Group();
 headPivot.add(crownPivot);
 
 const morphMeshes = [];
+const headMeshes = [];
 let currentMaterial = "origineel";
 let popAt = -Infinity;
 
@@ -349,7 +355,11 @@ function fitAndCenter(object, size) {
 
 gltfLoader.load("/textures/head.glb", (gltf) => {
   const head = gltf.scene;
-  head.traverse((child) => child.isMesh && prepareMesh(child));
+  head.traverse((child) => {
+    if (!child.isMesh) return;
+    prepareMesh(child);
+    headMeshes.push(child);
+  });
   fitAndCenter(head, (d) => 2 / d.y);
   headPivot.add(head);
 });
@@ -403,6 +413,7 @@ ui.appendChild(morphButton);
 const infoEl = document.querySelector(".material-info");
 const infoIndex = infoEl.querySelector(".info-index");
 const infoName = infoEl.querySelector(".info-name");
+const infoNameTexts = infoEl.querySelectorAll(".info-name-text");
 const infoSpecs = infoEl.querySelector(".info-specs");
 
 function setMaterial(name) {
@@ -413,7 +424,8 @@ function setMaterial(name) {
   }
 
   infoIndex.textContent = `0${materialOrder.indexOf(name) + 1} / 0${materialOrder.length}`;
-  infoName.textContent = name;
+  infoNameTexts.forEach((text) => (text.textContent = name));
+  infoName.setAttribute("aria-label", name);
   infoSpecs.textContent = materialInfo[name].specs;
   infoEl.classList.remove("swap");
   void infoEl.offsetWidth; // animatie opnieuw starten
@@ -449,6 +461,75 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   composer.setSize(window.innerWidth, window.innerHeight);
 });
+
+// ---------- klik op het hoofd: portfolio-ballon ----------
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+const bubble = document.querySelector(".portfolio-bubble");
+const bubbleCard = bubble.querySelector(".bubble-card");
+const bubbleAnchor = new THREE.Vector3(0.55, 0.7, 0.2); // rechtsboven het hoofd, in de ruimte van headPivot
+const bubbleScreen = new THREE.Vector3();
+let bubbleTouched = false;
+
+function hitsHead(event) {
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  return raycaster.intersectObjects(headMeshes, false).length > 0;
+}
+
+function showBubble() {
+  bubble.hidden = false;
+  // pop-animatie opnieuw afspelen
+  bubbleCard.style.animation = "none";
+  void bubbleCard.offsetWidth;
+  bubbleCard.style.animation = "";
+  updateBubble();
+}
+
+function hideBubble() {
+  bubble.hidden = true;
+}
+
+bubble.querySelector(".bubble-close").addEventListener("click", () => {
+  bubbleTouched = true;
+  hideBubble();
+});
+
+// alleen een echte klik telt, niet slepen om te draaien
+let downX = 0;
+let downY = 0;
+renderer.domElement.addEventListener("pointerdown", (event) => {
+  downX = event.clientX;
+  downY = event.clientY;
+});
+renderer.domElement.addEventListener("pointerup", (event) => {
+  const moved = Math.hypot(event.clientX - downX, event.clientY - downY);
+  if (moved > 6) return;
+  bubbleTouched = true;
+  if (hitsHead(event)) showBubble();
+  else hideBubble();
+});
+
+// handje als je over je hoofd beweegt (niet elke frame, dat is zwaar voor de scan)
+let lastHover = 0;
+renderer.domElement.addEventListener("pointermove", (event) => {
+  const now = performance.now();
+  if (now - lastHover < 120) return;
+  lastHover = now;
+  renderer.domElement.style.cursor = hitsHead(event) ? "pointer" : "";
+});
+
+function updateBubble() {
+  if (bubble.hidden) return;
+  bubbleScreen.copy(bubbleAnchor);
+  headPivot.localToWorld(bubbleScreen);
+  bubbleScreen.project(camera);
+  const x = (bubbleScreen.x + 1) * 0.5 * window.innerWidth;
+  const y = (1 - bubbleScreen.y) * 0.5 * window.innerHeight;
+  // linksonder van de ballon op het ankerpunt
+  bubble.style.transform = `translate(${x}px, ${y}px) translateY(-100%)`;
+}
 
 // ---------- animatie ----------
 const easeOutCubic = (p) => 1 - Math.pow(1 - p, 3);
@@ -513,6 +594,7 @@ function animate(time) {
   finishPass.uniforms.uTime.value = t;
 
   controls.update();
+  updateBubble();
   composer.render();
 }
 renderer.setAnimationLoop(animate);
