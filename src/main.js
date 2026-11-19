@@ -108,7 +108,7 @@ const hdrLoader = new HDRLoader(manager);
 const gltfLoader = new GLTFLoader(manager);
 const textureLoader = new THREE.TextureLoader(manager);
 
-hdrLoader.load("textures/bubble_studio.hdr", (texture) => {
+hdrLoader.load("/textures/bubble_studio.hdr", (texture) => {
   texture.mapping = THREE.EquirectangularReflectionMapping;
   scene.background = texture;
   scene.environment = texture;
@@ -163,9 +163,9 @@ function metalMaterial(path) {
 }
 
 const materials = {
-  zwart: metalMaterial("textures/metal_black.png"),
-  zilver: metalMaterial("textures/metal_chrome.png"),
-  goud: metalMaterial("textures/metal_gold.png"),
+  zwart: metalMaterial("/textures/metal_black.png"),
+  zilver: metalMaterial("/textures/metal_chrome.png"),
+  goud: metalMaterial("/textures/metal_gold.png"),
 };
 
 const materialInfo = {
@@ -339,14 +339,14 @@ function fitAndCenter(object, size) {
   object.position.sub(center);
 }
 
-gltfLoader.load("textures/head.glb", (gltf) => {
+gltfLoader.load("/textures/head.glb", (gltf) => {
   const head = gltf.scene;
   head.traverse((child) => child.isMesh && prepareMesh(child));
   fitAndCenter(head, (d) => 2 / d.y);
   headPivot.add(head);
 });
 
-gltfLoader.load("textures/chrome-crown.glb", (gltf) => {
+gltfLoader.load("/textures/chrome-crown.glb", (gltf) => {
   const crown = gltf.scene;
   crown.traverse((child) => child.isMesh && prepareMesh(child));
   fitAndCenter(crown, (d) => 1.2 / Math.max(d.x, d.z));
@@ -359,9 +359,9 @@ ui.className = "material-ui";
 document.body.appendChild(ui);
 
 const swatches = {
-  zwart: "url(textures/metal_black.png)",
-  zilver: "url(textures/metal_chrome.png)",
-  goud: "url(textures/metal_gold.png)",
+  zwart: "url(/textures/metal_black.png)",
+  zilver: "url(/textures/metal_chrome.png)",
+  goud: "url(/textures/metal_gold.png)",
 };
 
 const buttons = {};
