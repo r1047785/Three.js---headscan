@@ -166,15 +166,23 @@ const materials = {
   zwart: metalMaterial("/textures/metal_black.png"),
   zilver: metalMaterial("/textures/metal_chrome.png"),
   goud: metalMaterial("/textures/metal_gold.png"),
+  // exact hetzelfde materiaal als de blobs: pure spiegelende chrome, zonder texture
+  vloeibaar: new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    metalness: 1,
+    roughness: 0.05,
+  }),
 };
+enableMorph(materials.vloeibaar);
 
 const materialInfo = {
   origineel: { specs: "3D scan · originele textures", blob: 0xffffff },
   zwart: { specs: "black chrome · metalness 1.0 · roughness 0.15", blob: 0x1c1e23 },
   zilver: { specs: "liquid chrome · metalness 1.0 · roughness 0.15", blob: 0xffffff },
   goud: { specs: "molten gold · metalness 1.0 · roughness 0.15", blob: 0xd99a2b },
+  vloeibaar: { specs: "blob chrome · metalness 1.0 · roughness 0.05", blob: 0xffffff },
 };
-const materialOrder = ["origineel", "zwart", "zilver", "goud"];
+const materialOrder = ["origineel", "zwart", "zilver", "goud", "vloeibaar"];
 
 // ---------- chrome blobs ----------
 const blobMaterial = new THREE.MeshStandardMaterial({
